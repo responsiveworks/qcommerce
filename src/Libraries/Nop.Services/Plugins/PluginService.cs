@@ -6,6 +6,7 @@ using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Media;
 using Nop.Core.Infrastructure;
 using Nop.Data.Migrations;
+using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
@@ -19,38 +20,36 @@ public partial class PluginService : IPluginService
 {
     #region Fields
 
-    protected readonly CatalogSettings _catalogSettings;
     protected readonly ICustomerService _customerService;
     protected readonly IHttpContextAccessor _httpContextAccessor;
     protected readonly IMigrationManager _migrationManager;
     protected readonly ILogger _logger;
     protected readonly INopFileProvider _fileProvider;
     protected readonly IPluginsInfo _pluginsInfo;
+    protected readonly ISettingService _settingService;
     protected readonly IWebHelper _webHelper;
-    protected readonly MediaSettings _mediaSettings;
 
     #endregion
 
     #region Ctor
 
-    public PluginService(CatalogSettings catalogSettings,
+    public PluginService(
         ICustomerService customerService,
         IHttpContextAccessor httpContextAccessor,
         IMigrationManager migrationManager,
         ILogger logger,
         INopFileProvider fileProvider,
-        IWebHelper webHelper,
-        MediaSettings mediaSettings)
+        ISettingService settingService,
+        IWebHelper webHelper)
     {
-        _catalogSettings = catalogSettings;
         _customerService = customerService;
         _httpContextAccessor = httpContextAccessor;
         _migrationManager = migrationManager;
         _logger = logger;
         _fileProvider = fileProvider;
         _pluginsInfo = Singleton<IPluginsInfo>.Instance;
+        _settingService = settingService;
         _webHelper = webHelper;
-        _mediaSettings = mediaSettings;
     }
 
     #endregion
@@ -108,7 +107,8 @@ public partial class PluginService : IPluginService
         if (customer == null || !pluginDescriptor.LimitedToCustomerRoles.Any())
             return true;
 
-        if (_catalogSettings.IgnoreAcl)
+        var catalogSettings = await _settingService.LoadSettingAsync<CatalogSettings>();
+        if (catalogSettings.IgnoreAcl)
             return true;
 
         return pluginDescriptor.LimitedToCustomerRoles.Intersect(await _customerService.GetCustomerRoleIdsAsync(customer)).Any();
@@ -310,25 +310,26 @@ public partial class PluginService : IPluginService
     /// A task that represents the asynchronous operation
     /// The task result contains the logo URL
     /// </returns>
-    public virtual Task<string> GetPluginLogoUrlAsync(PluginDescriptor pluginDescriptor)
+    public virtual async Task<string> GetPluginLogoUrlAsync(PluginDescriptor pluginDescriptor)
     {
         var pluginDirectory = _fileProvider.GetDirectoryName(pluginDescriptor.OriginalAssemblyFile);
         if (string.IsNullOrEmpty(pluginDirectory))
-            return Task.FromResult<string>(null);
+            return null;
 
         //check for supported extensions
         var logoExtension = NopPluginDefaults.SupportedLogoImageExtensions
             .FirstOrDefault(ext => _fileProvider.FileExists(_fileProvider.Combine(pluginDirectory, $"{NopPluginDefaults.LogoFileName}.{ext}")));
         if (string.IsNullOrWhiteSpace(logoExtension))
-            return Task.FromResult<string>(null);
+            return null;
 
+        var mediaSettings = await _settingService.LoadSettingAsync<MediaSettings>();
         var pathBase = _httpContextAccessor.HttpContext.Request.PathBase.Value ?? string.Empty;
-        var logoPathUrl = _mediaSettings.UseAbsoluteImagePath ? _webHelper.GetStoreLocation() : $"{pathBase}/";
+        var logoPathUrl = mediaSettings.UseAbsoluteImagePath ? _webHelper.GetStoreLocation() : $"{pathBase}/";
 
         var logoUrl = $"{logoPathUrl}{NopPluginDefaults.PathName}/" +
                       $"{_fileProvider.GetDirectoryNameOnly(pluginDirectory)}/{NopPluginDefaults.LogoFileName}.{logoExtension}";
 
-        return Task.FromResult(logoUrl);
+        return logoUrl;
     }
 
     /// <summary>

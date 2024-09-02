@@ -82,7 +82,7 @@ public partial class NopStartup : INopStartup
         services.AddScoped<IUserAgentHelper, UserAgentHelper>();
 
         //plugins
-        services.AddScoped<IPluginService, PluginService>();
+        services.AddSingleton<IPluginService, PluginService>();
         services.AddScoped<OfficialFeedManager>();
 
         //static cache manager
