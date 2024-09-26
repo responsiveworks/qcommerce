@@ -35,8 +35,8 @@
   },
   "DistributedCacheConfig": {
     "DistributedCacheType": "redis",
-    "Enabled": true,
-    "ConnectionString": "redis-nyc3-98525-do-user-14380571-0.h.db.ondigitalocean.com:25061,abortConnect=false,ssl=true,allowAdmin=true,password=AVNS_782bDPzyuWVfKEPSWBy",
+    "Enabled": $DISTRIBUTED_CACHING,
+    "ConnectionString": "$REDIS_HOST,abortConnect=false,ssl=true,allowAdmin=true,password=REDIS_PASSWORD",
     "SchemaName": "",
     "TableName": "",
     "InstanceName": "",
