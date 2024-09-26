@@ -34,13 +34,13 @@
     "RejectionStatusCode": 503
   },
   "DistributedCacheConfig": {
-    "DistributedCacheType": "redissynchronizedmemory",
-    "Enabled": false,
-    "ConnectionString": "127.0.0.1:6379,ssl=False",
-    "SchemaName": "dbo",
-    "TableName": "DistributedCache",
-    "InstanceName": "nopCommerce",
-    "PublishIntervalMs": 500
+    "DistributedCacheType": "redis",
+    "Enabled": true,
+    "ConnectionString": "redis-nyc3-98525-do-user-14380571-0.h.db.ondigitalocean.com:25061,abortConnect=false,ssl=true,allowAdmin=true,password=AVNS_782bDPzyuWVfKEPSWBy",
+    "SchemaName": "",
+    "TableName": "",
+    "InstanceName": "",
+    "PublishIntervalMs": 0
   },
   "HostingConfig": {
     "UseProxy": false,
