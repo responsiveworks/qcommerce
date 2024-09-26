@@ -1,12 +1,12 @@
-# create the build instance 
+# create the build instance
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 
-WORKDIR /src                                                                    
+WORKDIR /src
 COPY ./src ./
 
-WORKDIR /src/Presentation/Nop.Web   
+WORKDIR /src/Presentation/Nop.Web
 
-# build project   
+# build project
 RUN dotnet build Nop.Web.csproj -c Release
 
 # build plugins
@@ -19,7 +19,7 @@ RUN set -eux; \
     done
 
 # publish project
-WORKDIR /src/Presentation/Nop.Web   
+WORKDIR /src/Presentation/Nop.Web
 RUN dotnet publish Nop.Web.csproj -c Release -o /app/published
 
 WORKDIR /app/published
@@ -40,8 +40,8 @@ RUN chmod 775 App_Data \
               wwwroot/images/uploaded \
 			  wwwroot/sitemaps
 
-# create the runtime instance 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime 
+# create the runtime instance
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
 
 # add globalization support
 RUN apk add --no-cache icu-libs icu-data-full
@@ -51,16 +51,18 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 RUN apk add tiff --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/main/ --allow-untrusted
 RUN apk add libgdiplus --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community/ --allow-untrusted
 RUN apk add libc-dev tzdata --no-cache
+RUN apk add gettext --no-cache
 
 # copy entrypoint script
 COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod 755 /entrypoint.sh
+COPY ./appsettings.json.template /appsettings.json.template
+RUN chmod 755 /entrypoint.sh /appsettings.json.template
 
 WORKDIR /app
 
 COPY --from=build /app/published .
 
-ENV ASPNETCORE_URLS=http://+:80
-EXPOSE 80
-                            
+#ENV ASPNETCORE_URLS=http://+:80
+#EXPOSE 80
+
 ENTRYPOINT "/entrypoint.sh"
