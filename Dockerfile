@@ -58,6 +58,9 @@ COPY ./entrypoint.sh /entrypoint.sh
 COPY ./appsettings.json.template /appsettings.json.template
 RUN chmod 755 /entrypoint.sh /appsettings.json.template
 
+# copy key.xml
+COPY key.xml /app/published/App_Data/DataProtectionKeys
+
 WORKDIR /app
 
 COPY --from=build /app/published .
