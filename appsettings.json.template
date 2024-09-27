@@ -34,7 +34,7 @@
     "RejectionStatusCode": 503
   },
   "DistributedCacheConfig": {
-    "DistributedCacheType": "redis",
+    "DistributedCacheType": "redissynchronizedmemory",
     "Enabled": $DISTRIBUTED_CACHING,
     "ConnectionString": "$REDIS_HOST,abortConnect=false,ssl=true,allowAdmin=true,password=$REDIS_PASSWORD",
     "SchemaName": "",
