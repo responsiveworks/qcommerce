@@ -36,7 +36,7 @@
   "DistributedCacheConfig": {
     "DistributedCacheType": "redis",
     "Enabled": $DISTRIBUTED_CACHING,
-    "ConnectionString": "$REDIS_HOST,abortConnect=false,ssl=true,allowAdmin=true,password=REDIS_PASSWORD",
+    "ConnectionString": "$REDIS_HOST,abortConnect=false,ssl=true,allowAdmin=true,password=$REDIS_PASSWORD",
     "SchemaName": "",
     "TableName": "",
     "InstanceName": "",
